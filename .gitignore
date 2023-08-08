@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+NewMonitor/data/digital-7.ttf
+NewMonitor/LCDNOVA.TTF
+NewMonitor/data/Skip.mp3
+NewMonitor/data/Player.mp3
+NewMonitor/data/Silom-48.vlw
+NewMonitor/data/ITFDevanagari-Light-48.vlw
+NewMonitor/data/LCD.vlw
+NewMaster/.DS_Store
+NewMonitor/.DS_Store
+.gitignore
+.DS_Store
+NewMaster/PCF8574.cpp
+NewMaster/PCF8574.h
+NewMonitor/data.txt
