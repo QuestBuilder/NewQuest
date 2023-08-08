@@ -14,6 +14,7 @@
 #define SEND_GS   0xDD // Команда отправки состояния гаджета
 #define SEND_EG   0xFF // Команда окончания игры
 
+
 void sendGadState(byte gadget_index)
 {
   byte payload = (gadget_index & 0x1F) | (gadget_curr_levels[gadget_index] << 5);
