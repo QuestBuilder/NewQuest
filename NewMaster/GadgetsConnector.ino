@@ -11,16 +11,16 @@ unsigned long GADGET_TIMEOUT = 1000;
 
 void checkGadgetState(byte gadget_index)
 {
+  // Гаджету всегда отправляем 2 байта
   byte cmd = GDG_REQ | gadget_index;
-  byte bx_crc = ~cmd;
   digitalWrite(RS_GDG_DIR_PIN, HIGH);
   Serial1.write(cmd);
   delay(2);
-  Serial1.write(bx_crc);
+  Serial1.write(~cmd);
   delay(2);
   digitalWrite(RS_GDG_DIR_PIN, LOW);
   delay(10);
-  unsigned long req_tick = millis();
+  unsigned long req_tick = millis();w
   while (Serial1.available() < 1 && millis() - req_tick < GADGET_TIMEOUT) {;}
   if (Serial.available() > 0)
   {
@@ -43,6 +43,8 @@ void skipGadget(byte gadget_index, boolean step_skip)
   if (step_skip) cmd = GDG_SKS | gadget_index;
   Serial1.write(cmd);
   delay(2);
+  Serial1.write(~cmd);
+  delay(2);
   digitalWrite(RS_GDG_DIR_PIN, LOW);
   delay(10);
 }
@@ -53,6 +55,8 @@ void activateGadget(byte gadget_index)
   byte cmd = GDG_ACT | gadget_index;
   Serial1.write(cmd);
   delay(2);
+  Serial1.write(~cmd);
+  delay(2);
   digitalWrite(RS_GDG_DIR_PIN, LOW);
   delay(10);
 }
@@ -62,6 +66,8 @@ void resetGadget(byte gadget_index)
   digitalWrite(RS_GDG_DIR_PIN, HIGH);
   byte cmd = GDG_RST | gadget_index;
   Serial1.write(cmd);
+  delay(2);
+  Serial1.write(~cmd);
   delay(2);
   digitalWrite(RS_GDG_DIR_PIN, LOW);
   delay(10);
