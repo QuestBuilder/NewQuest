@@ -15,6 +15,7 @@ void checkSmartGadget(byte gadget_index, boolean by_step)
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
+      Serial.println("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
       oper_skips[gadget_index] = false;
     }
 
@@ -28,6 +29,7 @@ void checkSmartGadget(byte gadget_index, boolean by_step)
       lcd.print("G" + String(gadget_index) + ":CUR=" + String(gadget_curr_levels[gadget_index]));
       lcd.setCursor(0, 1);
       lcd.print("RECV=" + String(gadget_recv_levels[gadget_index]));
+      Serial.println("G" + String(gadget_index) + ":CUR=" + String(gadget_curr_levels[gadget_index]));
       gadget_curr_levels[gadget_index] = gadget_recv_levels[gadget_index];
       gadget_recv_levels[gadget_index] = 0;
     }
@@ -49,6 +51,7 @@ void checkSmartGadget(byte gadget_index, boolean by_step)
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR2 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR2 Done");
       // Команды после сработки таймера 2
     }
 
@@ -58,6 +61,7 @@ void checkSmartGadget(byte gadget_index, boolean by_step)
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR1 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR1 Done");
       // Команды после сработки таймера 1
     }
 
@@ -81,7 +85,7 @@ void checkOutGadget(byte gadget_index, boolean by_step) // Simple Only Out (SKIP
   if (curr_room != gadget_rooms[gadget_index] && gadget_rooms[gadget_index] > 0) return;
 
   // Иначе проверяем его: если внутренний уровень не максимальный или есть мульти-скип
-  if (gadget_curr_levels[gadget_index] < gadget_max_levels[gadget_index] && oper_skips[gadget_index])
+  if ((gadget_curr_levels[gadget_index] < gadget_max_levels[gadget_index]) && oper_skips[gadget_index])
   {
     sendHLms(outPins[gadget_index], 250);
     oper_skips[gadget_index] = false;
@@ -92,6 +96,7 @@ void checkOutGadget(byte gadget_index, boolean by_step) // Simple Only Out (SKIP
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
+    Serial.println("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
     oper_skips[gadget_index] = false;
     
     // Если гаджет пройден запукаем таймеры и запускаем первые команды
@@ -111,6 +116,7 @@ void checkOutGadget(byte gadget_index, boolean by_step) // Simple Only Out (SKIP
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR2 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR2 Done");
       // Команды
     }
     // Таймер 1
@@ -120,6 +126,7 @@ void checkOutGadget(byte gadget_index, boolean by_step) // Simple Only Out (SKIP
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR1 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR1 Done");
       // Команды
     }
 
@@ -149,8 +156,10 @@ void checkInGadget(byte gadget_index, boolean by_step) // Only In, not Out
       else gadget_curr_levels[gadget_index] = gadget_max_levels[gadget_index];
       lcd.clear();
       lcd.setCursor(0, 0);
-      if (oper_skips[gadget_index]) lcd.print("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
-      else lcd.print("G" + String(gadget_index) + ":PLAYER_DONE");
+      String log_text = "G" + String(gadget_index) + ":PLAYER_DONE";
+      if (oper_skips[gadget_index]) log_text = "G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE");
+      lcd.print(log_text);
+      Serial.println(log_text);
       oper_skips[gadget_index] = false;
     }
     
@@ -171,6 +180,7 @@ void checkInGadget(byte gadget_index, boolean by_step) // Only In, not Out
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR2 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR2 Done");
       // Команды после сработки таймера 2
     }
 
@@ -180,6 +190,7 @@ void checkInGadget(byte gadget_index, boolean by_step) // Only In, not Out
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR1 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR1 Done");
       // Команды после сработки таймера 1
     }
 
@@ -205,20 +216,15 @@ void checkSimpleGadget(byte gadget_index, boolean by_step) // Simple In and Out
   {
     if (!digitalRead(inPins[gadget_index]) || oper_skips[gadget_index])
     {
-      if (by_step) 
-      {
-        gadget_curr_levels[gadget_index]++;
-        sendHLms(outPins[gadget_index], 250);
-      }
-      else 
-      {
-        gadget_curr_levels[gadget_index] = gadget_max_levels[gadget_index];
-        sendHLms(outPins[gadget_index], 250);
-      }
+      if (by_step) gadget_curr_levels[gadget_index]++;
+      else gadget_curr_levels[gadget_index] = gadget_max_levels[gadget_index];
+      sendHLms(outPins[gadget_index], 250);
       lcd.clear();
       lcd.setCursor(0, 0);
-      if (oper_skips[gadget_index]) lcd.print("G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE"));
-      else lcd.print("G" + String(gadget_index) + ":PLAYER_DONE");
+      String log_text = "G" + String(gadget_index) + ":PLAYER_DONE";
+      if (oper_skips[gadget_index]) log_text = "G" + String(gadget_index) + (by_step ? ":SKIP_STEP" : ":SKIP_DONE");
+      lcd.print(log_text);
+      Serial.println(log_text);
       oper_skips[gadget_index] = false;
       
     }
@@ -239,6 +245,7 @@ void checkSimpleGadget(byte gadget_index, boolean by_step) // Simple In and Out
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR2 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR2 Done");
       // Команды после сработки таймера 2
     }
 
@@ -248,6 +255,7 @@ void checkSimpleGadget(byte gadget_index, boolean by_step) // Simple In and Out
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("G" + String(gadget_index) + ":TMR1 Done");
+      Serial.println("G" + String(gadget_index) + ":TMR1 Done");
       // Команды после сработки таймера 1
     }
 

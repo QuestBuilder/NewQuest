@@ -5,11 +5,12 @@ void keyPressed()
   {
     if (MON_STATE == PLAYING)
     {
-      if (keyCode-49 == 0) sendSkip((byte)1, false);
-      if (keyCode-49 == 1) sendSkip((byte)2, true);
+      // if (keyCode-49 == 0) sendSkip((byte)1, false);
+      // if (keyCode-49 == 1) sendSkip((byte)2, true);
       if (keyCode-49 == 2) sendHint();
       if (keyCode == 40) hints_count = max(min(hints_count - 1, 3), 0);
       if (keyCode == 38) hints_count = max(min(hints_count + 1, 3), 0);
+      if (keyCode == 10) requestStates();
     }
     
     if (MON_STATE == PLAYER_CNT_ENTER)

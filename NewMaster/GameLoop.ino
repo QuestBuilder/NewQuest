@@ -9,7 +9,7 @@ void loop()
   {
     updateGadgets();
     unsigned long tick = millis();
-    if (tick - last_mon_sync > 6000)
+    if (tick - last_mon_sync > 15000)
     {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -27,13 +27,13 @@ void updateGadgets()
   // Обновление состояний гаджетов происходит по очереди прохождения
   // Рекомендуется разбивать гаджеты по логическим комнатам (curr_room)
   if (curr_room == 0) waitStart();
-  else if (curr_room == 1) checkSimpleGadget(GADGET1);
+  else if (curr_room == 1) checkSimpleGadget(GADGET1, true);
   else if (curr_room == 2)
   {
-    checkSmartGadget(GADGET2);
-    checkOutGadget(GADGET3);
+    checkSmartGadget(GADGET2, true);
+    checkOutGadget(GADGET3, true);
   }
-  else if (curr_room == 3) checkInGadget(GADGET4);
+  else if (curr_room == 3) checkInGadget(GADGET4, true);
 
   customGadget(5); // гаджет вне комнат
   
@@ -63,10 +63,14 @@ void updateRooms()
     if (gadget_rooms[g] == curr_room)
     {
       room_gadgets++;
-      if (gadget_max_levels[gadget_index] == gadget_max_levels[gadget_index]) done_gadgets++;
+      if (gadget_curr_levels[g] == gadget_max_levels[g]) done_gadgets++;
     }
   }
-  if (room_gadgets == done_gadgets) curr_room++;
+  if (room_gadgets == done_gadgets) 
+  {
+    curr_room++;
+    Serial.println("Go to the Next Room");
+  }
 }
 
 void waitStart() {
@@ -77,8 +81,8 @@ void waitStart() {
       game_state = true;
       curr_room = 1;
       delay(100);
-      MP3A.stop();
-      MP3B.play(1);
+      // MP3A.stop();
+      // MP3B.play(1);
       delay(500);
       start_timer = millis();
       lcd.setCursor(0, 1);

@@ -7,6 +7,7 @@ String master_port = "COM4";//"/dev/cu.usbmodem14311";
 int master_rs_speed = 115200;
 boolean port_selected = false;
 boolean master_connected = false;
+boolean operator_can_touch = true;
 
 PFont gadget_font, timer_font, dig_font, connector_font;
 
@@ -142,7 +143,7 @@ void initFonts()
   // printArray(fontList);
   gadget_font = createFont("Arial", 12); //MyanmarMN
   timer_font = createFont("Arial", 14); //MyanmarMN
-  dig_font = createFont("digital-7.ttf", 24);
+  dig_font = createFont("LucidaSans", 24);
   connector_font = createFont("LucidaSans", 30);
   textFont(connector_font);
 }

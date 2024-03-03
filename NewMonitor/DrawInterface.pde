@@ -13,7 +13,7 @@ void drawInterface()
   {
     fill(orange);
     //drawGadget(i, i%horizont_gadgets);
-    if (game_started && !game_over)
+    if (game_started && !game_over && operator_can_touch)
     {
       if (buttons[i].update()) // Pressed by operator
       {

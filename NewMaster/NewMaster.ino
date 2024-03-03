@@ -8,6 +8,7 @@
 #define RS_MON_RE_PIN 8
 #define RS_MON_DIR_PIN 9
 #define RS_GDG_DIR_PIN 10
+#define RS_GDG_RE_PIN  11
 
 //------------------
 #define GADGET1   0 // Simple (In and Out, Skip-Once, Activated, 1 level, 1 timer)
@@ -46,7 +47,7 @@ boolean DEBUG = true;
 boolean use_lcd = true;
 boolean mon_connected = false;
 boolean game_state   = false;
-byte    curr_room   = 1;
+byte    curr_room   = 2;
 int     game_time    = 0;
 byte    start_level  = 0;
 byte    players     = 0;
@@ -70,7 +71,7 @@ byte gadget_curr_timers[GCOUNT]     = {0,   0,   0,   0,   0,   0,   0,   0,   0
 byte gadget_curr_levels[GCOUNT]     = {0,   0,   0,   0,   0,   0,   0,   0,   0,   0}; // Текущий уровень внутри гаджета
 byte gadget_recv_levels[GCOUNT]     = {0,   0,   0,   0,   0,   0,   0,   0,   0,   0}; // Принятый от гаджета уровень
 byte gadget_max_levels[GCOUNT]      = {1,   1,   1,   1,   2,   5,   3,   3,   3,   0}; // Число уровней внутри гаджета
-byte gadget_rooms[GCOUNT]           = {1,   1,   1,   2,   2,   3,   3,   3,   3,  -1}; // Номера "комнат" гаджетов
+byte gadget_rooms[GCOUNT]           = {1,   2,   2,   3,   8,   3,   3,   3,   3,  -1}; // Номера "комнат" гаджетов
 
 // Скипы
 byte gadget_multi_skips[GCOUNT]     = {false, false, false, false, false, false, false, false, false, false};
@@ -116,6 +117,7 @@ byte outPins[GCOUNT] = { 21, -1, 25, -1, 29, 31, 33, 35, 37, 39 };
 
 void setup()
 {
+  Serial.begin(115200); // RS to Monitor
   if (use_lcd)
   {
     lcd.init();
@@ -123,7 +125,7 @@ void setup()
   }
   setupRS485(use_lcd);
   Serial.println("Run Quest Master v 0.1a");
-  setupMP3(use_lcd);
+  // setupMP3(use_lcd);
   setupPins(use_lcd);
   if (use_lcd)
   {
@@ -133,22 +135,25 @@ void setup()
     lcd.setCursor(0, 1);
     lcd.print("_INIT__COMPLETE_");
   }
+  Serial.println("");
 }
 
 void setupRS485(boolean lcd_report)
 {
-  Serial.begin(115200); // RS to Monitor
-  Serial1.begin(115200); // RS to Gadgets
+  Serial1.begin(115200); // RS to Monitor
+  Serial2.begin(115200); // RS to Gadgets
   pinMode(RS_MON_DIR_PIN, OUTPUT);
   digitalWrite(RS_MON_DIR_PIN, LOW);
+  pinMode(RS_GDG_DIR_PIN, OUTPUT);
+  digitalWrite(RS_GDG_DIR_PIN, LOW);
   if (DEBUG) 
   {
     pinMode(RS_MON_RE_PIN, OUTPUT);
     digitalWrite(RS_MON_RE_PIN, LOW);
+    pinMode(RS_GDG_RE_PIN, OUTPUT);
+  digitalWrite(RS_GDG_RE_PIN, LOW);
   }
-  pinMode(RS_GDG_DIR_PIN, OUTPUT);
   
-  digitalWrite(RS_GDG_DIR_PIN, LOW);
   if (lcd_report)
   {
     lcd.clear();
@@ -162,9 +167,9 @@ void setupRS485(boolean lcd_report)
 
 void setupMP3(boolean lcd_report)
 {
-  Serial2.begin(9600);        // MP3-A
+  Serial2.begin(115200);        // MP3-A
   Serial3.begin(9600);        // MP3-B
-  MP3A.begin(Serial2, false);
+  // MP3A.begin(Serial2, false);
   MP3B.begin(Serial3, false);
   delay(100);
   MP3A.volume(26);
